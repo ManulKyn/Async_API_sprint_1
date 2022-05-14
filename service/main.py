@@ -7,7 +7,7 @@ from typing import Optional
 from fastapi import Depends, FastAPI
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import films
+from api.v1 import film, person, genre
 from core import config
 from core.logger import LOGGING
 from db import elastic, redis
@@ -21,22 +21,22 @@ app = FastAPI(
 )
 
 app.include_router(
-    films.router,
+    film.router,
     prefix='/api/v1/films',
     tags=['films'],
 )
-#
-# app.include_router(
-#     persons.router,
-#     prefix='/api/v1/persons',
-#     tags=['persons'],
-# )
-#
-# app.include_router(
-#     genres.router,
-#     prefix='/api/v1/genres',
-#     tags=['genres'],
-# )
+
+app.include_router(
+    person.router,
+    prefix='/api/v1/persons',
+    tags=['persons'],
+)
+
+app.include_router(
+    genre.router,
+    prefix='/api/v1/genres',
+    tags=['genres'],
+)
 
 
 @app.on_event('startup')
