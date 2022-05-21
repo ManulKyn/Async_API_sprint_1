@@ -1,10 +1,14 @@
 import os
 from logging import config as logging_config
 
+from dotenv import load_dotenv
+
 from core.logger import LOGGING
 
 # Применяем настройки логирования
 logging_config.dictConfig(LOGGING)
+
+load_dotenv()
 
 # Название проекта. Используется в Swagger-документации
 PROJECT_NAME = os.getenv('PROJECT_NAME', 'movies')
