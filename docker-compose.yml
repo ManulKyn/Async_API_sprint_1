@@ -17,6 +17,8 @@ services:
       - "discovery.type=single-node"
     networks:
       - async_api_net
+    volumes:
+      - esdata_s3:/usr/share/elasticsearch/data
 
   service:
     container_name: "service_prod"
@@ -32,4 +34,3 @@ services:
 
 networks:
   async_api_net:
-    name: async_api_net
