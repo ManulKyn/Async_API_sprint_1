@@ -21,9 +21,13 @@ services:
   service:
     container_name: "service_prod"
     build: ./service
-    environment:
-      - REDIS_HOST=redis
-      - ELASTIC_HOST=elasticsearch
+    env_file:
+      - .env
+    ports:
+      - '8000:8000'
+#    environment:
+#      - REDIS_HOST=redis
+#      - ELASTIC_HOST=elasticsearch
     depends_on:
       - redis
       - elasticsearch

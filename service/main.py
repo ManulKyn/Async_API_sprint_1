@@ -57,13 +57,18 @@ async def shutdown():
     await elastic.es.close()
 
 
+@app.get('/')
+def home():
+    return {'service': config.PROJECT_NAME}
+
+
 if __name__ == '__main__':
     uvicorn.run(
         'main:app',
-        host='0.0.0.0',
+        host='127.0.0.1',
         port=8000,
-        # log_config=LOGGING,
-        # log_level=logging.DEBUG,
-        # reload=True,
-        # debug=True,
+        log_config=LOGGING,
+        log_level=logging.DEBUG,
+        reload=True,
+        debug=True,
     )
