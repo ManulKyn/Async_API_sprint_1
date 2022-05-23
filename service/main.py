@@ -2,16 +2,13 @@ import logging
 
 import aioredis
 import uvicorn
-from elasticsearch import AsyncElasticsearch
-from typing import Optional
-from fastapi import Depends, FastAPI
-from fastapi.responses import ORJSONResponse
-
-from api.v1 import film, person, genre
+from api.v1 import film, genre, person
 from core import config
 from core.logger import LOGGING
 from db import elastic, redis
-
+from elasticsearch import AsyncElasticsearch
+from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
 
 app = FastAPI(
     title=config.PROJECT_NAME,
@@ -62,8 +59,6 @@ if __name__ == '__main__':
         'main:app',
         host='0.0.0.0',
         port=8000,
-        # log_config=LOGGING,
-        # log_level=logging.DEBUG,
-        # reload=True,
-        # debug=True,
+        log_config=LOGGING,
+        log_level=logging.DEBUG,
     )

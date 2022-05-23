@@ -1,27 +1,26 @@
 from http import HTTPStatus
+from typing import List, Optional
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
-from uuid import UUID
-from typing import List, Optional
-
 from services.films import FilmService, get_film_service
 
 router = APIRouter()
 
 
 class FilmMain(BaseModel):
-    uuid: UUID
-    title: str
-    imdb_rating: float
+    uuid: Optional[UUID]
+    title: Optional[str]
+    imdb_rating: Optional[float]
 
 
 class FilmDetail(FilmMain):
-    description: Optional[str] = ''
-    genre: List[dict]
-    actors: List[dict]
-    writers: List[dict]
-    directors: List[dict]
+    description: Optional[str]
+    genre: Optional[List[str]]
+    actors: Optional[List[dict]]
+    writers: Optional[List[dict]]
+    director: Optional[str]
 
 
 @router.get('/search/')
@@ -35,14 +34,14 @@ async def film_search(
     return films
 
 
-@router.get('/<uuid:UUID>/', response_model=FilmDetail)
+@router.get('/{film_id}', response_model=FilmDetail)
 async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> FilmDetail:
     film = await film_service.get_by_id(film_id)
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
 
     return FilmDetail(uuid=film.id, title=film.title, imdb_rating=film.imdb_rating, description=film.description,
-                      genre=film.genres, actors=film.actors, writers=film.writers, directors=film.directors)
+                      genre=film.genre, actors=film.actors, writers=film.writers, director=film.director)
 
 
 @router.get('/')
