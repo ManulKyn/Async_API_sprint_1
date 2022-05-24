@@ -1,0 +1,10 @@
+.idea/
+
+.env
+
+venv/
+
+#состояния баз
+postgresql/
+redis_s3/
+esdata_s3/

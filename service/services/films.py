@@ -1,11 +1,10 @@
-from typing import Optional, List, Dict
+from typing import Dict, List, Optional
 
 from aioredis import Redis
-from elasticsearch import AsyncElasticsearch
-from fastapi import Depends
-
 from db.elastic import get_elastic
 from db.redis import get_redis
+from elasticsearch import AsyncElasticsearch
+from fastapi import Depends
 from models.film import Film
 
 
@@ -19,17 +18,12 @@ class FilmService:
         list_films = [Film(**x['_source']) for x in doc['hits']['hits']]
         return list_films
 
-    async def get_film_search(self, query: str, page_size: int, page_number: int) -> List[Film]:
+    async def get_film_search(self, query: dict, page_size: int, page_number: int, sort: dict) -> List[Film]:
         body = {
             'size': page_size,
-            'from': (page_number - 1) * page_size,
-            'query': {
-                'simple_query_string': {
-                    "query": query,
-                    "fields": ["title^3", "description"],
-                    "default_operator": "or"
-                }
-            }
+            'from': page_number,
+            'query': query,
+            'sort': sort
         }
         doc = await self.search_films(body)
         return doc
