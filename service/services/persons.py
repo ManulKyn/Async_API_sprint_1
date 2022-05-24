@@ -1,3 +1,6 @@
+import os
+from os.path import join, dirname
+from dotenv import load_dotenv
 from typing import Optional, List, Tuple, Dict, Coroutine, Any
 
 from aioredis import Redis
@@ -9,14 +12,60 @@ from db.redis import get_redis
 from models.person import Person
 
 
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+
 class PersonService:
     def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
         self.redis = redis
         self.elastic = elastic
 
+    # async def person_detail(self, person_id: str) -> Optional[Tuple[Person, Optional[List[dict]]]]:
+    #     person_full = None
+    #     person = await self._person_from_cache(person_id)
+    #     if not person:
+    #         person = await self._get_person_from_elastic(person_id)
+    #         if not person:
+    #             return None
+    #         person_roles = await self._get_person_full(person_id)
+    #         await self._put_person_to_cache(person)
+    #         person_full = [
+    #             {
+    #                 'uuid': person.id,
+    #                 'full_name': person.full_name,
+    #                 'role': 'writer',
+    #                 'film_ids': person_roles['writer']
+    #             },
+    #             {
+    #                 'uuid': person.id,
+    #                 'full_name': person.full_name,
+    #                 'role': 'director',
+    #                 'film_ids': person_roles['director']
+    #             },
+    #             {
+    #                 'uuid': person.id,
+    #                 'full_name': person.full_name,
+    #                 'role': 'actor',
+    #                 'film_ids': person_roles['actor']
+    #             }
+    #         ]
+    #
+    #     return person_full
+
     async def _get_person_from_elastic(self, person_id: str) -> Optional[Person]:
         doc = await self.elastic.get('persons', person_id)
         return Person(**doc['_source'])
+
+    # async def _person_from_cache(self, person_id: str) -> Optional[Person]:
+    #     data = await self.redis.get(person_id)
+    #     if not data:
+    #         return None
+    #     person = Person.parse_raw(data)
+    #     return person
+
+    # async def _put_person_to_cache(self, person: Person):
+    #     await self.redis.set(str(person.id), person.json(), expire=os.getenv('CACHE_EXPIRE'))
 
     async def _get_person_full(self, person_id: str) -> Dict[str, List[str]]:
         ids_films_writer = await self.role_films(person_id=person_id, role='writers')

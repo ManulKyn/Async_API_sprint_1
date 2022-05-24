@@ -10,3 +10,5 @@ fastapi-pagination
 fastapi-cache2==0.1.6
 acryl-datahub[datahub-rest,elasticsearch]==0.8.28.0
 python-dotenv==0.20.0
+flake8==4.0.0
+python-dotenv==0.20.0

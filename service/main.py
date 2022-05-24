@@ -9,6 +9,7 @@ from db import elastic, redis
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from uuid import UUID
 
 app = FastAPI(
     title=config.PROJECT_NAME,
@@ -44,7 +45,7 @@ async def startup():
         decode_responses=True,
     )
     elastic.es = AsyncElasticsearch(
-        hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'],
+        hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}']
     )
 
 
