@@ -3,10 +3,17 @@ from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from services.films import FilmService, get_film_service
 
 router = APIRouter()
+
+
+class FilmSearchRequest(BaseModel):
+    query: Optional[dict] = Field(title='тело запроса для эластика', default={"match_all": {}})
+    sort: Optional[dict] = Field(title='Параметры сортировки')
+    page_size: Optional[int] = Field(title='размер страницы поиска', gt=0, default=50, alias='page_size')
+    page_number: Optional[int] = Field(title='страница поиска', gt=0, default=1, alias='from')
 
 
 class FilmMain(BaseModel):
@@ -23,13 +30,11 @@ class FilmDetail(FilmMain):
     director: Optional[str]
 
 
-@router.get('/search/')
+@router.post('/search/')
 async def film_search(
-        query: str,
-        page_size: int = Query(50, alias="page[size]"),
-        page_number: int = Query(1, alias="page[number]"),
+        search: FilmSearchRequest,
         film_service: FilmService = Depends(get_film_service)) -> List[FilmMain]:
-    films_all_fields_search = await film_service.get_film_search(query, page_size, page_number)
+    films_all_fields_search = await film_service.get_film_search(**search.dict())
     films = [FilmMain(uuid=x.id, title=x.title, imdb_rating=x.imdb_rating) for x in films_all_fields_search]
     return films
 
