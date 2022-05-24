@@ -22,10 +22,10 @@ services:
     container_name: "service_prod"
     build: ./service
     environment:
-      REDIS_HOST: $REDIS_HOST
-      ELASTIC_HOST: $ELASTIC_HOST
-      DB_HOST: $DB_HOST
-      DB_PORT: $DB_PORT
+      REDIS_HOST: ${REDIS_HOST}
+      ELASTIC_HOST: ${ELASTIC_HOST}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
     depends_on:
       - redis
       - elasticsearch
@@ -38,10 +38,10 @@ services:
     image: "${DB_IMAGE}"
     container_name: 'postgres'
     environment:
-      POSTGRES_DB: $DB_NAME
-      POSTGRES_USER: $DB_USER
-      POSTGRES_PASSWORD: $DB_PASSWORD
-      POSTGRES_HOST: $DB_HOST
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_HOST: ${DB_HOST}
     volumes:
       - ./postgresql/data:/var/lib/postgresql/data
     env_file:
@@ -54,11 +54,11 @@ services:
     build:
       dockerfile: etl_app/etl.Dockerfile
     environment:
-      DB_NAME: $DB_NAME
-      DB_USER: $DB_USER
-      DB_PASSWORD: $DB_PASSWORD
-      DB_HOST: $DB_HOST
-      ELASTICSEARCH_HOST: $ELASTIC_HOST
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      ELASTICSEARCH_HOST: ${ELASTIC_HOST}
     depends_on:
       - postgres
       - elasticsearch
