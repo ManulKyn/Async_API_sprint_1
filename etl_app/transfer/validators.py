@@ -21,6 +21,11 @@ class GenreTableSchema(BaseModel):
     genre: Optional[List[str]]
 
 
+class GenrePostgreRow(BaseModel):
+    id: uuid.UUID
+    name: str
+
+
 class PersonTableSchema(BaseModel):
     id: uuid.UUID
     director: Optional[str]
