@@ -1,6 +1,8 @@
 .idea/
 
 .env
+etl.Dockerfile
+Dockerfile
 
 venv/
 
