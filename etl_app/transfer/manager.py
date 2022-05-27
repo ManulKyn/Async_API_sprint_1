@@ -2,12 +2,16 @@ import datetime
 from typing import Tuple, Union
 
 from .strategy import (FilmWorkTableStrategyFabric, GenreTableStrategyFabric,
+                       GenreTableStrategyGenreIndexFabric,
                        PersonTableStrategyFabric)
 
 
 class Manager:
     def __init__(self):
-        self.chain = FilmWorkTableStrategyFabric, GenreTableStrategyFabric, PersonTableStrategyFabric
+        self.chain = (
+            FilmWorkTableStrategyFabric, GenreTableStrategyFabric, PersonTableStrategyFabric,
+            GenreTableStrategyGenreIndexFabric
+        )
         self.strategy_index = 0
         self._strategy = self.chain[self.strategy_index]()
 
@@ -24,8 +28,8 @@ class Manager:
         """Переключение таблицы и запрашиваемого временного промежутка"""
         self.strategy_index = (self.strategy_index + 1)
 
-        if self.strategy_index == 3:
-            self.strategy_index %= 3
+        if self.strategy_index == 4:
+            self.strategy_index %= 4
             is_done_time = True
         else:
             is_done_time = False
