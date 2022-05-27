@@ -21,6 +21,8 @@ services:
   service:
     container_name: "service_prod"
     build: ./service
+    env_file:
+      - .env
     environment:
       REDIS_HOST: $REDIS_HOST
       ELASTIC_HOST: $ELASTIC_HOST
@@ -52,7 +54,8 @@ services:
   etl:
     container_name: 'etl_prod'
     build:
-      dockerfile: etl_app/etl.Dockerfile
+      context: ./etl_app/
+      dockerfile: etl.Dockerfile
     environment:
       DB_NAME: $DB_NAME
       DB_USER: $DB_USER
