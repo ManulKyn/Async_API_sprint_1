@@ -30,9 +30,9 @@ class Settings(BaseModel):
         ) as conn, conn.cursor(cursor_factory=self.cursor_factory) as cur:
             cur.execute(
                 """
-                select min(coalesce(fw.updated_at, g.updated_at, p.updated_at)) earliest_date from content.film_work fw 
-                full outer join "content".genre g on g.updated_at =fw.updated_at 
-                full outer join "content".person p  on p.updated_at =fw.updated_at;
+                select min(coalesce(fw.modified, g.modified, p.modified)) earliest_date from content.film_work fw 
+                full outer join "content".genre g on g.modified = fw.modified 
+                full outer join "content".person p  on p.modified = fw.modified;
                 """
             )
             earliest = cur.fetchone()

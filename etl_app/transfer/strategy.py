@@ -1,5 +1,4 @@
 import datetime
-import logging
 import os
 from abc import ABC, abstractmethod
 from typing import Generator, Iterator, List, Type, Union
@@ -101,7 +100,7 @@ class FilmWorkTableStrategyFabric(ContentTableStrategyFabric):
                     title,
                     description
                 FROM {self.schema}.{self.table_name}
-                WHERE updated_at BETWEEN '{reference_date_start}' AND '{reference_date_end}'
+                WHERE modified BETWEEN '{reference_date_start}' AND '{reference_date_end}'
                 offset({offset})
                 limit ({query_limit});
                 """
@@ -127,7 +126,7 @@ class GenreTableStrategyFabric(ContentTableStrategyFabric):
                 SELECT pfw.film_work_id id, array_agg(source.name) as genre
                 FROM {self.schema}.{self.table_name} source
                 JOIN {self.schema}.genre_film_work pfw ON pfw.genre_id = source.id
-                WHERE source.updated_at BETWEEN '{reference_date_start}' AND '{reference_date_end}'
+                WHERE source.modified BETWEEN '{reference_date_start}' AND '{reference_date_end}'
                 GROUP BY pfw.film_work_id
                 offset ({offset})
                 limit ({query_limit});
@@ -169,7 +168,7 @@ class PersonTableStrategyFabric(ContentTableStrategyFabric):
                     FROM content.person_film_work pfw
                     JOIN  (
                         SELECT id FROM content.person
-                        WHERE updated_at BETWEEN '{reference_date_start}' AND '{reference_date_end}'
+                        WHERE modified BETWEEN '{reference_date_start}' AND '{reference_date_end}'
                     ) updated on updated.id = pfw.person_id
                 ) sub ON sub.film_work_id = source.film_work_id
                 JOIN content.person persons ON persons.id = source.person_id
@@ -211,14 +210,11 @@ class GenreTableStrategyGenreIndexFabric(ContentTableStrategyFabric):
             query_limit: int,
             offset: int
     ):
-        logging.warning(f'QUERYING FROM {self.table_name}')
         sql = f"""
-                SELECT source.id, source.name
+                SELECT source.id, source.name, source.description
                 FROM {self.schema}.{self.table_name} source
-                WHERE source.updated_at BETWEEN '{reference_date_start}' AND '{reference_date_end}'
+                WHERE source.modified BETWEEN '{reference_date_start}' AND '{reference_date_end}'
                 offset ({offset})
                 limit ({query_limit});
                 """
         cursor.execute(sql)
-        a = cursor.fetchone()
-        logging.warning(a)
