@@ -6,8 +6,8 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR ./etl_app
 
-COPY etl_app/requirements.txt .
+COPY requirements.txt .
 RUN /usr/local/bin/python -m pip install --upgrade pip && pip install -r requirements.txt
-COPY etl_app .
+COPY . .
 
 CMD ["python", "main.py"]
