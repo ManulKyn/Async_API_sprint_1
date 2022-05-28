@@ -8,8 +8,6 @@ WORKDIR ./etl_app
 
 COPY etl_app/requirements.txt .
 RUN /usr/local/bin/python -m pip install --upgrade pip && pip install -r requirements.txt
-COPY etl_app ./etl_app
-
-WORKDIR ./etl_app
+COPY etl_app .
 
 CMD ["python", "main.py"]
