@@ -159,7 +159,10 @@ class EsManagement:
                                 "type": "keyword"
                             },
                             "full_name": {
-                                "type": "text"
+                                "type": "keyword"
+                            },
+                            "birth_date": {
+                                "type": "dates"
                             }
                         }
                     }
