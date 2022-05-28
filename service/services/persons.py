@@ -54,16 +54,6 @@ class PersonService:
         doc = await self.elastic.get('persons', person_id)
         return Person(**doc['_source'])
 
-    # async def _person_from_cache(self, person_id: str) -> Optional[Person]:
-    #     data = await self.redis.get(person_id)
-    #     if not data:
-    #         return None
-    #     person = Person.parse_raw(data)
-    #     return person
-
-    # async def _put_person_to_cache(self, person: Person):
-    #     await self.redis.set(str(person.id), person.json(), expire=os.getenv('CACHE_EXPIRE'))
-
     async def _get_person_full(self, person_id: str) -> Dict[str, List[str]]:
         ids_films_writer = await self.role_films(person_id=person_id, role='writers')
         ids_films_director = await self.role_films(person_id=person_id, role='directors')
@@ -81,16 +71,7 @@ class PersonService:
             'query': {
                 'bool': {
                     'filter': {
-                        'nested': {
-                            'path': role,
-                            'query': {
-                                'bool': {
-                                    'filter': {
-                                        'term': {role + '.id': person_id}
-                                    }
-                                }
-                            }
-                        }
+                        'term': {role + '.id': person_id}
                     }
                 }
             }

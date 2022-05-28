@@ -141,7 +141,7 @@ class EsManagement:
                                 "type": "keyword"
                             },
                             "description": {
-                                "type": "long"
+                                "type": "text"
                             }
                         }
                     }
