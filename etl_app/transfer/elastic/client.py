@@ -149,7 +149,7 @@ class EsManagement:
             )
         if not self.es_client.indices.exists(index='persons'):
             self.create_index(
-                index_name='genres',
+                index_name='persons',
                 mapping={
                     **settings,
                     "mappings": {

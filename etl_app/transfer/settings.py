@@ -30,7 +30,8 @@ class Settings(BaseModel):
         ) as conn, conn.cursor(cursor_factory=self.cursor_factory) as cur:
             cur.execute(
                 """
-                select min(coalesce(fw.modified, g.modified, p.modified)) earliest_date from content.film_work fw 
+                -- если нет дат, то таблицы пустые и начинаем смотреть с текущей даты
+                select min(coalesce(fw.modified, g.modified, p.modified, now())) earliest_date from content.film_work fw 
                 full outer join "content".genre g on g.modified = fw.modified 
                 full outer join "content".person p  on p.modified = fw.modified;
                 """
