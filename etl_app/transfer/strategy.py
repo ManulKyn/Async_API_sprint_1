@@ -9,7 +9,7 @@ from psycopg2._psycopg import cursor as psy_cursor
 from .elastic import EsManagement
 from .utils import backoff, postgres_connection
 from .validators import (FilmWorkTableSchema, GenrePostgreRow,
-                         GenreTableSchema, PersonTableSchema)
+                         GenreTableSchema, PersonPostgreRow, PersonTableSchema)
 
 
 class ContentTableStrategyFabric(ABC):
@@ -212,6 +212,32 @@ class GenreTableStrategyGenreIndexFabric(ContentTableStrategyFabric):
     ):
         sql = f"""
                 SELECT source.id, source.name, source.description
+                FROM {self.schema}.{self.table_name} source
+                WHERE source.modified BETWEEN '{reference_date_start}' AND '{reference_date_end}'
+                offset ({offset})
+                limit ({query_limit});
+                """
+        cursor.execute(sql)
+
+
+class PersonTableStrategyPersonIndexFabric(ContentTableStrategyFabric):
+    table_name = 'person'
+    es_index = 'persons'
+
+    @property
+    def validator(self) -> Type[PersonPostgreRow]:
+        return PersonPostgreRow
+
+    def strategy_extra_query(
+            self,
+            cursor: psy_cursor,
+            reference_date_start,
+            reference_date_end,
+            query_limit: int,
+            offset: int
+    ):
+        sql = f"""
+                SELECT source.id, source.full_name
                 FROM {self.schema}.{self.table_name} source
                 WHERE source.modified BETWEEN '{reference_date_start}' AND '{reference_date_end}'
                 offset ({offset})

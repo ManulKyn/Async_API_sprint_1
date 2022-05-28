@@ -147,6 +147,24 @@ class EsManagement:
                     }
                 }
             )
+        if not self.es_client.indices.exists(index='persons'):
+            self.create_index(
+                index_name='genres',
+                mapping={
+                    **settings,
+                    "mappings": {
+                        "dynamic": "strict",
+                        "properties": {
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "full_name": {
+                                "type": "text"
+                            }
+                        }
+                    }
+                }
+            )
 
     def create_index(self, index_name: str, mapping: dict):
         if not self.es_client.indices.exists(index=index_name):

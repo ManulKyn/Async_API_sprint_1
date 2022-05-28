@@ -31,6 +31,11 @@ class GenrePostgreRow(BaseModel):
         return value or 'No description'
 
 
+class PersonPostgreRow(BaseModel):
+    id: uuid.UUID
+    full_name: str
+
+
 class PersonTableSchema(BaseModel):
     id: uuid.UUID
     director: Optional[str]

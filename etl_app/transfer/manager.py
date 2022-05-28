@@ -3,33 +3,50 @@ from typing import Tuple, Union
 
 from .strategy import (FilmWorkTableStrategyFabric, GenreTableStrategyFabric,
                        GenreTableStrategyGenreIndexFabric,
-                       PersonTableStrategyFabric)
+                       PersonTableStrategyFabric,
+                       PersonTableStrategyPersonIndexFabric)
 
 
 class Manager:
     def __init__(self):
         self.chain = (
-            FilmWorkTableStrategyFabric, GenreTableStrategyFabric, PersonTableStrategyFabric,
-            GenreTableStrategyGenreIndexFabric
+            FilmWorkTableStrategyFabric,
+            GenreTableStrategyFabric,
+            PersonTableStrategyFabric,
+            GenreTableStrategyGenreIndexFabric,
+            PersonTableStrategyPersonIndexFabric
         )
         self.strategy_index = 0
         self._strategy = self.chain[self.strategy_index]()
 
     @property
-    def table(self) -> Union[PersonTableStrategyFabric, FilmWorkTableStrategyFabric, GenreTableStrategyFabric]:
+    def table(self) -> Union[
+        PersonTableStrategyFabric,
+        FilmWorkTableStrategyFabric,
+        GenreTableStrategyFabric,
+        PersonTableStrategyPersonIndexFabric
+    ]:
         """Логика процесса для различных таблиц БД"""
         return self._strategy
 
     @table.setter
-    def table(self, value: Union[PersonTableStrategyFabric, FilmWorkTableStrategyFabric, GenreTableStrategyFabric]):
+    def table(
+            self,
+            value: Union[
+                PersonTableStrategyFabric,
+                FilmWorkTableStrategyFabric,
+                GenreTableStrategyFabric,
+                PersonTableStrategyPersonIndexFabric
+            ]
+    ):
         self._strategy = value
 
     def switch_table(self):
         """Переключение таблицы и запрашиваемого временного промежутка"""
         self.strategy_index = (self.strategy_index + 1)
 
-        if self.strategy_index == 4:
-            self.strategy_index %= 4
+        if self.strategy_index == len(self.chain):
+            self.strategy_index %= len(self.chain)
             is_done_time = True
         else:
             is_done_time = False
