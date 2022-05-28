@@ -139,6 +139,9 @@ class EsManagement:
                             },
                             "name": {
                                 "type": "keyword"
+                            },
+                            "description": {
+                                "type": "text"
                             }
                         }
                     }

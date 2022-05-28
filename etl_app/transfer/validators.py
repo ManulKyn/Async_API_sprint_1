@@ -1,7 +1,7 @@
 import uuid
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 
 class NestedNames(BaseModel):
@@ -24,6 +24,11 @@ class GenreTableSchema(BaseModel):
 class GenrePostgreRow(BaseModel):
     id: uuid.UUID
     name: str
+    description: Optional[str] = 'No description'
+
+    @validator('description')
+    def default_desc(cls, value):
+        return value or 'No description'
 
 
 class PersonTableSchema(BaseModel):
