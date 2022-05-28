@@ -10,8 +10,4 @@ COPY etl_app ./etl_app
 
 WORKDIR ./etl_app
 
-COPY etl_app/docker-entrypoint-etl.sh ./docker-entrypoint-etl.sh
-
-RUN chmod +x ./docker-entrypoint-etl.sh
-
-ENTRYPOINT [ "./docker-entrypoint-etl.sh" ]
+CMD ["python", "main.py"]
