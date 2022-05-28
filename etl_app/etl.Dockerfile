@@ -1,7 +1,5 @@
 FROM python:3.8
 
-RUN apt-get update && apt-get install -y netcat
-
 ENV PYTHONUNBUFFERED=1
 
 COPY etl_app/requirements.txt .

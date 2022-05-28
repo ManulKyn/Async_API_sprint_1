@@ -2,18 +2,13 @@ from http import HTTPStatus
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from services.films import FilmService, get_film_service
 
+from .base import SearchRequest
+
 router = APIRouter()
-
-
-class FilmSearchRequest(BaseModel):
-    query: Optional[dict] = Field(title='тело запроса для эластика', default={"match_all": {}})
-    sort: Optional[dict] = Field(title='Параметры сортировки')
-    page_size: Optional[int] = Field(title='размер страницы поиска', gt=0, default=50, alias='page_size')
-    page_number: Optional[int] = Field(title='страница поиска', gt=0, default=1, alias='from')
 
 
 class FilmMain(BaseModel):
@@ -32,16 +27,16 @@ class FilmDetail(FilmMain):
 
 @router.post('/search/')
 async def film_search(
-        search: FilmSearchRequest,
+        search: SearchRequest,
         film_service: FilmService = Depends(get_film_service)) -> List[FilmMain]:
-    films_all_fields_search = await film_service.get_film_search(**search.dict())
+    films_all_fields_search = await film_service.search(body=search.dict(by_alias=True))
     films = [FilmMain(uuid=x.id, title=x.title, imdb_rating=x.imdb_rating) for x in films_all_fields_search]
     return films
 
 
 @router.get('/{film_id}', response_model=FilmDetail)
 async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> FilmDetail:
-    film = await film_service.get_by_id(film_id)
+    film = await film_service.get(film_id)
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
 
@@ -50,11 +45,10 @@ async def film_details(film_id: str, film_service: FilmService = Depends(get_fil
 
 
 @router.get('/')
-async def film_main(sort: str = "-imdb_rating",
-                    page_size: int = Query(50, alias="page[size]"),
-                    page_number: int = Query(1, alias="page[number]"),
-                    filter_genre: str = Query(None, alias="filter[genre]"),
-                    film_service: FilmService = Depends(get_film_service)) -> List[FilmMain]:
-    films_all_fields = await film_service.get_film_pagination(sort, page_size, page_number, filter_genre)
+async def film_main(
+        sort: str = "-imdb_rating",
+        film_service: FilmService = Depends(get_film_service)
+) -> List[FilmMain]:
+    films_all_fields = await film_service.get_all(sort=sort)
     films = [FilmMain(uuid=x.id, title=x.title, imdb_rating=x.imdb_rating) for x in films_all_fields]
     return films

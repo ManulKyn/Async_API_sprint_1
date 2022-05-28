@@ -1,27 +1,26 @@
-from typing import Optional, List, Dict
+from typing import Type
 
 from aioredis import Redis
-from elasticsearch import AsyncElasticsearch
-from fastapi import Depends
-
 from db.elastic import get_elastic
 from db.redis import get_redis
+from elasticsearch import AsyncElasticsearch
+from fastapi import Depends
 from models.genre import Genre
 
+from .base import Service
 
-class GenreService:
+
+class GenreService(Service):
     def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
-        self.elastic = elastic
+        super(GenreService, self).__init__(redis=redis, elastic=elastic)
 
-    async def _get_genre_from_elastic(self, genre_id: str) -> Optional[Genre]:
-        doc = await self.elastic.get('genres', genre_id)
-        return Genre(**doc['_source'])
+    @property
+    def index(self) -> str:
+        return 'genres'
 
-    async def genre_main(self):
-        doc = await self.elastic.search(index='genres', size=1000)
-        list_genres = [Genre(**x['_source']) for x in doc['hits']['hits']]
-        return list_genres
+    @property
+    def model(self) -> Type[Genre]:
+        return Genre
 
 
 def get_genre_service(
