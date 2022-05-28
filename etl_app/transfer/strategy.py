@@ -1,5 +1,4 @@
 import datetime
-import logging
 import os
 from abc import ABC, abstractmethod
 from typing import Generator, Iterator, List, Type, Union
@@ -9,8 +8,8 @@ from psycopg2._psycopg import cursor as psy_cursor
 
 from .elastic import EsManagement
 from .utils import backoff, postgres_connection
-from .validators import (FilmWorkTableSchema, GenreTableSchema,
-                         PersonTableSchema)
+from .validators import (FilmWorkTableSchema, GenrePostgreRow,
+                         GenreTableSchema, PersonPostgreRow, PersonTableSchema)
 
 
 class ContentTableStrategyFabric(ABC):
@@ -19,6 +18,7 @@ class ContentTableStrategyFabric(ABC):
     schema = 'content'
     table_name: str = None
     es_client = EsManagement()
+    es_index = 'movies'
 
     @property
     @abstractmethod
@@ -74,14 +74,15 @@ class ContentTableStrategyFabric(ABC):
 
     @backoff(timeout_restriction=180, time_factor=2)
     def load(self, qs: Iterator[dict]):
-        self.es_client.upsert(query_set=qs)
+        data = self.es_client.upsert(query_set=qs, index=self.es_index)
+        return data
 
 
 class FilmWorkTableStrategyFabric(ContentTableStrategyFabric):
     table_name = 'film_work'
 
     @property
-    def validator(self) -> Type[Union[FilmWorkTableSchema, PersonTableSchema, GenreTableSchema]]:
+    def validator(self) -> Type[FilmWorkTableSchema]:
         return FilmWorkTableSchema
 
     def strategy_extra_query(
@@ -99,7 +100,7 @@ class FilmWorkTableStrategyFabric(ContentTableStrategyFabric):
                     title,
                     description
                 FROM {self.schema}.{self.table_name}
-                WHERE updated_at BETWEEN '{reference_date_start}' AND '{reference_date_end}'
+                WHERE modified BETWEEN '{reference_date_start}' AND '{reference_date_end}'
                 offset({offset})
                 limit ({query_limit});
                 """
@@ -110,7 +111,7 @@ class GenreTableStrategyFabric(ContentTableStrategyFabric):
     table_name = 'genre'
 
     @property
-    def validator(self) -> Type[Union[FilmWorkTableSchema, PersonTableSchema, GenreTableSchema]]:
+    def validator(self) -> Type[GenreTableSchema]:
         return GenreTableSchema
 
     def strategy_extra_query(
@@ -125,7 +126,7 @@ class GenreTableStrategyFabric(ContentTableStrategyFabric):
                 SELECT pfw.film_work_id id, array_agg(source.name) as genre
                 FROM {self.schema}.{self.table_name} source
                 JOIN {self.schema}.genre_film_work pfw ON pfw.genre_id = source.id
-                WHERE source.updated_at BETWEEN '{reference_date_start}' AND '{reference_date_end}'
+                WHERE source.modified BETWEEN '{reference_date_start}' AND '{reference_date_end}'
                 GROUP BY pfw.film_work_id
                 offset ({offset})
                 limit ({query_limit});
@@ -137,7 +138,7 @@ class PersonTableStrategyFabric(ContentTableStrategyFabric):
     table_name = 'person'
 
     @property
-    def validator(self) -> Type[Union[FilmWorkTableSchema, PersonTableSchema, GenreTableSchema]]:
+    def validator(self) -> Type[PersonTableSchema]:
         return PersonTableSchema
 
     def strategy_extra_query(
@@ -167,7 +168,7 @@ class PersonTableStrategyFabric(ContentTableStrategyFabric):
                     FROM content.person_film_work pfw
                     JOIN  (
                         SELECT id FROM content.person
-                        WHERE updated_at BETWEEN '{reference_date_start}' AND '{reference_date_end}'
+                        WHERE modified BETWEEN '{reference_date_start}' AND '{reference_date_end}'
                     ) updated on updated.id = pfw.person_id
                 ) sub ON sub.film_work_id = source.film_work_id
                 JOIN content.person persons ON persons.id = source.person_id
@@ -182,7 +183,6 @@ class PersonTableStrategyFabric(ContentTableStrategyFabric):
             line = self.validator(id=row['id']).dict()
             for person in row['persons']:
                 if person['person_role'] == 'director':
-                    logging.warning(person)
                     line['director'] = person['person_name']
                 else:
                     line[f'{person["person_role"]}s'].append(
@@ -191,5 +191,56 @@ class PersonTableStrategyFabric(ContentTableStrategyFabric):
                     line[f'{person["person_role"]}s_names'].append(person["person_name"])
 
             validated = self.validator(**line).dict()
-            logging.warning(f"{row},\n\n{validated}\n\n")
             yield validated
+
+
+class GenreTableStrategyGenreIndexFabric(ContentTableStrategyFabric):
+    table_name = 'genre'
+    es_index = 'genres'
+
+    @property
+    def validator(self) -> Type[GenrePostgreRow]:
+        return GenrePostgreRow
+
+    def strategy_extra_query(
+            self,
+            cursor: psy_cursor,
+            reference_date_start,
+            reference_date_end,
+            query_limit: int,
+            offset: int
+    ):
+        sql = f"""
+                SELECT source.id, source.name, source.description
+                FROM {self.schema}.{self.table_name} source
+                WHERE source.modified BETWEEN '{reference_date_start}' AND '{reference_date_end}'
+                offset ({offset})
+                limit ({query_limit});
+                """
+        cursor.execute(sql)
+
+
+class PersonTableStrategyPersonIndexFabric(ContentTableStrategyFabric):
+    table_name = 'person'
+    es_index = 'persons'
+
+    @property
+    def validator(self) -> Type[PersonPostgreRow]:
+        return PersonPostgreRow
+
+    def strategy_extra_query(
+            self,
+            cursor: psy_cursor,
+            reference_date_start,
+            reference_date_end,
+            query_limit: int,
+            offset: int
+    ):
+        sql = f"""
+                SELECT source.id, source.full_name
+                FROM {self.schema}.{self.table_name} source
+                WHERE source.modified BETWEEN '{reference_date_start}' AND '{reference_date_end}'
+                offset ({offset})
+                limit ({query_limit});
+                """
+        cursor.execute(sql)

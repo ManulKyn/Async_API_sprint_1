@@ -24,10 +24,10 @@ services:
     env_file:
       - .env
     environment:
-      REDIS_HOST: $REDIS_HOST
-      ELASTIC_HOST: $ELASTIC_HOST
-      DB_HOST: $DB_HOST
-      DB_PORT: $DB_PORT
+      REDIS_HOST: ${REDIS_HOST}
+      ELASTIC_HOST: ${ELASTIC_HOST}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
     depends_on:
       - redis
       - elasticsearch
@@ -35,15 +35,17 @@ services:
       - etl
     ports:
       - '8000:8000'
+    restart: on-failure
+
 
   postgres:
     image: "${DB_IMAGE}"
     container_name: 'postgres'
     environment:
-      POSTGRES_DB: $DB_NAME
-      POSTGRES_USER: $DB_USER
-      POSTGRES_PASSWORD: $DB_PASSWORD
-      POSTGRES_HOST: $DB_HOST
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_HOST: ${DB_HOST}
     volumes:
       - ./postgresql/data:/var/lib/postgresql/data
     env_file:
@@ -57,14 +59,15 @@ services:
       context: ./etl_app/
       dockerfile: etl.Dockerfile
     environment:
-      DB_NAME: $DB_NAME
-      DB_USER: $DB_USER
-      DB_PASSWORD: $DB_PASSWORD
-      DB_HOST: $DB_HOST
-      ELASTICSEARCH_HOST: $ELASTIC_HOST
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      ELASTICSEARCH_HOST: ${ELASTIC_HOST}
     depends_on:
       - postgres
       - elasticsearch
+    restart: on-failure
 
 
 volumes:

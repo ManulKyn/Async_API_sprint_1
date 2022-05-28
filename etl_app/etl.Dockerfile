@@ -6,11 +6,10 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR ./etl_app
 
-COPY requirements.txt .
+COPY etl_app/requirements.txt .
 RUN /usr/local/bin/python -m pip install --upgrade pip && pip install -r requirements.txt
-COPY . .
+COPY etl_app ./etl_app
 
-RUN apt-get install dos2unix
-RUN dos2unix ./docker-entrypoint-etl.sh
+WORKDIR ./etl_app
 
-ENTRYPOINT [ "./docker-entrypoint-etl.sh" ]
+CMD ["python", "main.py"]
