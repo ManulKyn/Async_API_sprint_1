@@ -139,6 +139,27 @@ class EsManagement:
                             },
                             "name": {
                                 "type": "keyword"
+                            },
+                            "description": {
+                                "type": "text"
+                            }
+                        }
+                    }
+                }
+            )
+        if not self.es_client.indices.exists(index='persons'):
+            self.create_index(
+                index_name='persons',
+                mapping={
+                    **settings,
+                    "mappings": {
+                        "dynamic": "strict",
+                        "properties": {
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "full_name": {
+                                "type": "text"
                             }
                         }
                     }
