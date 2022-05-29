@@ -2,10 +2,10 @@ FROM python:3.8
 
 ENV PYTHONUNBUFFERED=1
 
-COPY etl_app/requirements.txt .
-RUN /usr/local/bin/python -m pip install --upgrade pip && pip install -r requirements.txt
-COPY etl_app ./etl_app
-
 WORKDIR ./etl_app
+
+COPY requirements.txt .
+RUN /usr/local/bin/python -m pip install --upgrade pip && pip install -r requirements.txt
+COPY . .
 
 CMD ["python", "main.py"]
