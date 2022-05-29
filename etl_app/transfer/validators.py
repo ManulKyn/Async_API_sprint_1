@@ -19,6 +19,7 @@ class FilmWorkTableSchema(BaseModel):
 class GenreTableSchema(BaseModel):
     id: uuid.UUID
     genre: Optional[List[str]]
+    description: Optional[str] = 'No description'
 
 
 class GenrePostgreRow(BaseModel):

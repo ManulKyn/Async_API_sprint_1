@@ -10,6 +10,7 @@ from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
+
 app = FastAPI(
     title=config.PROJECT_NAME,
     docs_url='/api/openapi',
@@ -44,7 +45,7 @@ async def startup():
         decode_responses=True,
     )
     elastic.es = AsyncElasticsearch(
-        hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'],
+        hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}']
     )
 
 
@@ -52,6 +53,11 @@ async def startup():
 async def shutdown():
     await redis.redis.close()
     await elastic.es.close()
+
+
+@app.get('/')
+def home():
+    return {'service': config.PROJECT_NAME}
 
 
 if __name__ == '__main__':
