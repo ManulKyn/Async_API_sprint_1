@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -27,7 +27,7 @@ async def genre_details(genre_id: str, genre_service: GenreService = Depends(get
 
 @router.get('/')
 async def genre_main(
-        sort: str,
+        sort: Optional[str],
         genre_service: GenreService = Depends(get_genre_service)
 ) -> List[Genre]:
     genres = await genre_service.get_all(sort=sort)

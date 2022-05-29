@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -36,7 +36,7 @@ async def person_details(person_id: str, person_service: PersonService = Depends
 
 @router.get('/')
 async def person_main(
-        sort: str,
+        sort: Optional[str],
         person_service: PersonService = Depends(get_person_service)
 ) -> List[Person]:
     persons_all_fields = await person_service.get_all(sort=sort)

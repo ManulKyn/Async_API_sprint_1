@@ -46,7 +46,7 @@ async def film_details(film_id: str, film_service: FilmService = Depends(get_fil
 
 @router.get('/')
 async def film_main(
-        sort: str = "-imdb_rating",
+        sort: Optional[str] = "-imdb_rating",
         film_service: FilmService = Depends(get_film_service)
 ) -> List[FilmMain]:
     films_all_fields = await film_service.get_all(sort=sort)
