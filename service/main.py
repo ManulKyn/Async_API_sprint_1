@@ -10,6 +10,15 @@ from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
+from fastapi_cache import FastAPICache, JsonCoder
+from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.decorator import cache
+
+
+@cache()
+async def get_cache():
+    return 1
+
 
 app = FastAPI(
     title=config.PROJECT_NAME,
@@ -44,6 +53,7 @@ async def startup():
         encoding="utf-8",
         decode_responses=True,
     )
+    FastAPICache.init(RedisBackend(redis.redis), prefix="async_api_sprint_4")
     elastic.es = AsyncElasticsearch(
         hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}']
     )
@@ -56,8 +66,9 @@ async def shutdown():
 
 
 @app.get('/')
-def home():
-    return {'service': config.PROJECT_NAME}
+@cache(expire=60)
+async def home():
+    return dict(service=config.PROJECT_NAME)
 
 
 if __name__ == '__main__':

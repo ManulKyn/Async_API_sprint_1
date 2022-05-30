@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from services.films import FilmService, get_film_service
 
 from .base import SearchRequest
+from fastapi_cache.decorator import cache
 
 router = APIRouter()
 
@@ -26,6 +27,7 @@ class FilmDetail(FilmMain):
 
 
 @router.post('/search/')
+@cache(expire=360)
 async def film_search(
         search: SearchRequest,
         film_service: FilmService = Depends(get_film_service)) -> List[FilmMain]:
@@ -35,6 +37,7 @@ async def film_search(
 
 
 @router.get('/{film_id}', response_model=FilmDetail)
+@cache(expire=360)
 async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> FilmDetail:
     film = await film_service.get(film_id)
     if not film:
@@ -45,6 +48,7 @@ async def film_details(film_id: str, film_service: FilmService = Depends(get_fil
 
 
 @router.get('/')
+@cache(expire=360)
 async def film_main(
         sort: Optional[str] = "-imdb_rating",
         film_service: FilmService = Depends(get_film_service)

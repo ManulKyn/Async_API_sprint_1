@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from services.genres import GenreService, get_genre_service
 
 from .base import SearchRequest
+from fastapi_cache.decorator import cache
 
 router = APIRouter()
 
@@ -17,6 +18,7 @@ class Genre(BaseModel):
 
 
 @router.get('/{genre_id}', response_model=Genre)
+@cache(expire=360)
 async def genre_details(genre_id: str, genre_service: GenreService = Depends(get_genre_service)) -> Genre:
     genre = await genre_service.get(genre_id)
     if not genre:
@@ -26,6 +28,7 @@ async def genre_details(genre_id: str, genre_service: GenreService = Depends(get
 
 
 @router.get('/')
+@cache(expire=360)
 async def genre_main(
         sort: Optional[str],
         genre_service: GenreService = Depends(get_genre_service)
@@ -38,6 +41,7 @@ async def genre_main(
 
 
 @router.post('/search/')
+@cache(expire=360)
 async def genre_search(
         search: SearchRequest,
         genre_service: GenreService = Depends(get_genre_service)
