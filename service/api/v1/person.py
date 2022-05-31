@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from services.persons import PersonService, get_person_service
 
 from .base import SearchRequest
+from core.config import settings
 from fastapi_cache.decorator import cache
 
 router = APIRouter()
@@ -18,7 +19,7 @@ class Person(BaseModel):
 
 
 @router.post('/search/')
-@cache(expire=360)
+@cache(expire=settings.CACHE_EXPIRE)
 async def person_search(
         search: SearchRequest,
         person_service: PersonService = Depends(get_person_service)) -> List[Person]:
@@ -27,17 +28,16 @@ async def person_search(
 
 
 @router.get('/{person_id}', response_model=Person)
-@cache(expire=360)
+@cache(expire=settings.CACHE_EXPIRE)
 async def person_details(person_id: str, person_service: PersonService = Depends(get_person_service)) -> Person:
     person = await person_service.get(person_id)
     if not person:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
-
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=settings.NO_PERSON_FND)
     return Person(uuid=person.id, full_name=person.full_name)
 
 
 @router.get('/')
-@cache(expire=360)
+@cache(expire=settings.CACHE_EXPIRE)
 async def person_main(
         sort: Optional[str],
         person_service: PersonService = Depends(get_person_service)

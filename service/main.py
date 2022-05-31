@@ -52,7 +52,7 @@ async def startup():
         encoding="utf-8",
         decode_responses=True,
     )
-    FastAPICache.init(RedisBackend(redis.redis), prefix="async_api_sprint_4")
+    FastAPICache.init(RedisBackend(redis.redis), prefix="async_api")
     elastic.es = AsyncElasticsearch(
         hosts=[f'{settings.ELASTIC_HOST}:{settings.ELASTIC_PORT}']
     )

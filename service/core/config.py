@@ -1,7 +1,7 @@
 import os
 from logging import config as logging_config
-from pydantic import BaseSettings
 
+from pydantic import BaseSettings
 from dotenv import load_dotenv
 from core.logger import LOGGING
 
@@ -24,6 +24,15 @@ class Settings(BaseSettings):
 
     # Корень проекта
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    # Ответ при отсутвии данных
+    NO_FILM_FND: str = os.getenv('NO_FILM_FND', 'film not found')
+    NO_GENRE_FND: str = os.getenv('NO_GENRE_FND', 'genre not found')
+    NO_GENRES_FND: str = os.getenv('NO_GENRES_FND', 'no genres found')
+    NO_PERSON_FND: str = os.getenv('NO_PERSON_FND', 'person not found')
+
+    # Время жизни кэша
+    CACHE_EXPIRE: int = os.getenv('CACHE_EXPIRE', 360)
 
     class Config:
         env_file = '.env'
