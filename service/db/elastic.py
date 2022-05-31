@@ -1,4 +1,5 @@
 from typing import Optional
+
 from elasticsearch import Elasticsearch
 
 es: Optional[Elasticsearch] = None

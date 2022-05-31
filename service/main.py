@@ -3,14 +3,13 @@ import logging
 import aioredis
 import uvicorn
 from api.v1 import film, genre, person
-from core import config
+from core.config import settings
 from core.logger import LOGGING
 from db import elastic, redis
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-
-from fastapi_cache import FastAPICache, JsonCoder
+from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
 
@@ -21,7 +20,7 @@ async def get_cache():
 
 
 app = FastAPI(
-    title=config.PROJECT_NAME,
+    title=settings.PROJECT_NAME,
     docs_url='/api/openapi',
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse,
@@ -49,13 +48,13 @@ app.include_router(
 @app.on_event('startup')
 async def startup():
     redis.redis = await aioredis.from_url(
-        f'redis://{config.REDIS_HOST}:{config.REDIS_PORT}',
+        f'redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}',
         encoding="utf-8",
         decode_responses=True,
     )
-    FastAPICache.init(RedisBackend(redis.redis), prefix="async_api_sprint_4")
+    FastAPICache.init(RedisBackend(redis.redis), prefix="async_api")
     elastic.es = AsyncElasticsearch(
-        hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}']
+        hosts=[f'{settings.ELASTIC_HOST}:{settings.ELASTIC_PORT}']
     )
 
 
@@ -68,7 +67,9 @@ async def shutdown():
 @app.get('/')
 @cache(expire=60)
 async def home():
-    return dict(service=config.PROJECT_NAME)
+    return dict(
+        service=settings.PROJECT_NAME,
+    )
 
 
 if __name__ == '__main__':
