@@ -34,9 +34,8 @@ services:
       - postgres
       - etl
     ports:
-      - '8000:8000'
+      - '8000'
     restart: on-failure
-
 
   postgres:
     image: "${DB_IMAGE}"
@@ -68,6 +67,17 @@ services:
       - postgres
       - elasticsearch
     restart: on-failure
+
+  nginx:
+    image: nginx:1.19.3
+    container_name: 'nginx_prod'
+    ports:
+      - 80:80
+    volumes:
+      - ./infra/nginx.conf:/etc/nginx/conf.d/default.conf
+    restart: on-failure
+    depends_on:
+      - service
 
 
 volumes:
