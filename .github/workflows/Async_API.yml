@@ -1,4 +1,4 @@
-name: foodgram-app_workflow
+name: movies_FastAPI_workflow
 
 on: [push]
 

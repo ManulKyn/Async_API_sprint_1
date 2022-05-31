@@ -49,8 +49,7 @@ class ContentTableStrategyFabric(ABC):
                 query_limit=query_limit,
                 offset=offset
             )
-
-        return cursor.fetchall()
+            return cursor.fetchall()
 
     def transform(self, queryset: List[dict]) -> Generator:
         """
