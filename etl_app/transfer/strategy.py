@@ -49,9 +49,8 @@ class ContentTableStrategyFabric(ABC):
                 query_limit=query_limit,
                 offset=offset
             )
-            result = cursor.fetchall()
 
-        return result
+        return cursor.fetchall()
 
     def transform(self, queryset: List[dict]) -> Generator:
         """
@@ -74,8 +73,7 @@ class ContentTableStrategyFabric(ABC):
 
     @backoff(timeout_restriction=180, time_factor=2)
     def load(self, qs: Iterator[dict]):
-        data = self.es_client.upsert(query_set=qs, index=self.es_index)
-        return data
+        return self.es_client.upsert(query_set=qs, index=self.es_index)
 
 
 class FilmWorkTableStrategyFabric(ContentTableStrategyFabric):

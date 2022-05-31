@@ -32,8 +32,7 @@ async def film_search(
         search: SearchRequest,
         film_service: FilmService = Depends(get_film_service)) -> List[FilmMain]:
     films_all_fields_search = await film_service.search(body=search.dict(by_alias=True))
-    films = [FilmMain(uuid=x.id, title=x.title, imdb_rating=x.imdb_rating) for x in films_all_fields_search]
-    return films
+    return [FilmMain(uuid=x.id, title=x.title, imdb_rating=x.imdb_rating) for x in films_all_fields_search]
 
 
 @router.get('/{film_id}', response_model=FilmDetail)
@@ -54,5 +53,4 @@ async def film_main(
         film_service: FilmService = Depends(get_film_service)
 ) -> List[FilmMain]:
     films_all_fields = await film_service.get_all(sort=sort)
-    films = [FilmMain(uuid=x.id, title=x.title, imdb_rating=x.imdb_rating) for x in films_all_fields]
-    return films
+    return [FilmMain(uuid=x.id, title=x.title, imdb_rating=x.imdb_rating) for x in films_all_fields]

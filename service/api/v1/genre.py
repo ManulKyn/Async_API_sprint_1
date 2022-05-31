@@ -36,8 +36,7 @@ async def genre_main(
     genres = await genre_service.get_all(sort=sort)
     if not genres:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='there are no genres')
-    genres_list = [Genre(uuid=x.id, name=x.name) for x in genres]
-    return genres_list
+    return [Genre(uuid=x.id, name=x.name) for x in genres]
 
 
 @router.post('/search/')
@@ -49,5 +48,4 @@ async def genre_search(
     genres = await genre_service.search(body=search.dict(by_alias=True))
     if not genres:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='no genres found')
-    genres_list = [Genre(uuid=x.id, name=x.name) for x in genres]
-    return genres_list
+    return [Genre(uuid=x.id, name=x.name) for x in genres]

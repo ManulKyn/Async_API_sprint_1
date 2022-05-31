@@ -23,8 +23,7 @@ async def person_search(
         search: SearchRequest,
         person_service: PersonService = Depends(get_person_service)) -> List[Person]:
     persons_all_fields_search = await person_service.search(body=search.dict(by_alias=True))
-    persons = [Person(uuid=x.id, full_name=x.full_name) for x in persons_all_fields_search]
-    return persons
+    return [Person(uuid=x.id, full_name=x.full_name) for x in persons_all_fields_search]
 
 
 @router.get('/{person_id}', response_model=Person)
@@ -44,5 +43,4 @@ async def person_main(
         person_service: PersonService = Depends(get_person_service)
 ) -> List[Person]:
     persons_all_fields = await person_service.get_all(sort=sort)
-    persons = [Person(uuid=x.id, title=x.title, imdb_rating=x.imdb_rating) for x in persons_all_fields]
-    return persons
+    return [Person(uuid=x.id, title=x.title, imdb_rating=x.imdb_rating) for x in persons_all_fields]
