@@ -12,3 +12,4 @@ acryl-datahub[datahub-rest,elasticsearch]==0.8.28.0
 python-dotenv==0.20.0
 flake8==4.0.0
 fastapi-cache2[redis]==0.1.6
+gunicorn

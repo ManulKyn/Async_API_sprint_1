@@ -40,7 +40,7 @@ async def person_details(person_id: str, person_service: PersonService = Depends
 @router.get('/')
 @cache(expire=360)
 async def person_main(
-        sort: Optional[str],
+        sort: Optional[str] = None,
         person_service: PersonService = Depends(get_person_service)
 ) -> List[Person]:
     persons_all_fields = await person_service.get_all(sort=sort)

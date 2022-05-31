@@ -30,7 +30,7 @@ async def genre_details(genre_id: str, genre_service: GenreService = Depends(get
 @router.get('/')
 @cache(expire=360)
 async def genre_main(
-        sort: Optional[str],
+        sort: Optional[str] = None,
         genre_service: GenreService = Depends(get_genre_service)
 ) -> List[Genre]:
     genres = await genre_service.get_all(sort=sort)
